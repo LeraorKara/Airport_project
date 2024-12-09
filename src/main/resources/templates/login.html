@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        .bg-image {
+            background-image: url('https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8265.jpg');
+            height: 100vh;
+            overflow: auto;
+            background-size: cover;
+            background-position: center;
+        }
+        body {
+            color: white;
+        }
+        .table tr td, .table tr th {
+            color: white;
+        }
+        .sort-links {
+            color: white;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="bg-image">
+    <blockquote class="blockquote text-center"><h1>Авторизация</h1></blockquote>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Имя пользователя</label>
+                    <input type="text" class="form-control" id="username" name="username" required/>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" id="password" name="password" required/>
+                </div>
+                <button type="submit" class="btn btn-outline-primary w-100">Войти</button>
+                <div th:if="${param.error}" class="mt-3">
+                    <div class="alert alert-danger" role="alert">
+                        Неверное имя пользователя или пароль.
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <a th:href="@{/register}">Регистрация</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

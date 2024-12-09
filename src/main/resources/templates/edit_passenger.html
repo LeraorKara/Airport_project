@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать пассажира</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        .bg-image {
+            background-image: url('https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8265.jpg');
+            height: 100vh;
+            overflow: auto;
+            background-size: cover;
+            background-position: center;
+        }
+        body {
+            color: white;
+        }
+        .table tr td, .table tr th {
+            color: white;
+        }
+        .sort-links {
+            color: white;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: white;
+        }
+        .btn-outline-success, .btn-outline-danger, .btn-outline-primary {
+            color: white;
+        }
+        label {
+            color: white;
+        }
+        input.form-control {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1); /* Добавляем полупрозрачный белый фон для лучшей читаемости */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Добавляем границу для лучшей видимости */
+        }
+    </style>
+</head>
+<body>
+<div class="bg-image">
+    <h1 class="text-center">Редактировать пассажира</h1>
+    <form id="editPassengerForm" th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:object="${passenger}">
+        <div class="form-group">
+            <label for="passengerid">ID</label>
+            <input type="text" class="form-control" id="passengerid" th:field="*{passengerid}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="firstname">Имя</label>
+            <input type="text" class="form-control" id="firstname" th:field="*{firstname}">
+        </div>
+        <div class="form-group">
+            <label for="lastname">Фамилия</label>
+            <input type="text" class="form-control" id="lastname" th:field="*{lastname}">
+        </div>
+        <div class="form-group">
+            <label for="dateofbirth">Дата рождения</label>
+            <input type="date" class="form-control" id="dateofbirth" th:field="*{dateofbirth}">
+        </div>
+        <div class="form-group">
+            <label for="contactinfo">Контактная информация</label>
+            <input type="email" class="form-control" id="contactinfo" th:field="*{contactinfo}">
+        </div>
+        <div class="form-group">
+            <label for="flightid">ID рейса</label>
+            <input type="number" class="form-control" id="flightid" th:field="*{flightid}">
+        </div>
+        <button type="button" class="btn btn-outline-success mt-3" onclick="validateForm()">Сохранить</button>
+    </form>
+    <button th:if="${#authorization.expression('hasRole(''ADMIN'')')}" class="btn btn-outline-danger mt-3"
+            th:data-passenger-id="${passenger.passengerid}" onclick="deletePassenger(this)">Удалить
+    </button>
+    <a class="btn btn-outline-primary mt-3" href="/admin/passengers">Назад</a>
+</div>
+</body>
+<script>
+    function validateForm() {
+        const firstname = document.getElementById('firstname').value;
+        const lastname = document.getElementById('lastname').value;
+        const dateofbirth = document.getElementById('dateofbirth').value;
+        const contactinfo = document.getElementById('contactinfo').value;
+        const flightid = document.getElementById('flightid').value;
+
+        // Проверка на заполнение всех полей
+        if (!firstname || !lastname || !dateofbirth || !contactinfo || !flightid) {
+            alert('Все поля должны быть заполнены');
+            return;
+        }
+
+        // Проверка контактной информации на английский язык, наличие "." и "@"
+        const englishRegex = /^[A-Za-z0-9@.\s]+$/;
+        if (!englishRegex.test(contactinfo) || !contactinfo.includes('.') || !contactinfo.includes('@')) {
+            alert('Контактная информация должна быть на английском языке и содержать "." и "@"');
+            return;
+        }
+
+        // Если все проверки пройдены, отправляем форму
+        submitForm();
+    }
+
+    function submitForm() {
+        const form = document.getElementById('editPassengerForm');
+        const formData = new FormData(form);
+        const passengerId = document.getElementById('passengerid').value;
+
+        fetch(`/api/passengers/${passengerId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                alert('Пассажир успешно обновлен');
+                location = '/admin/passengers';
+            } else {
+                alert('Ошибка при обновлении пассажира');
+            }
+        });
+    }
+
+    function deletePassenger(button) {
+        const passengerId = button.getAttribute('data-passenger-id');
+        if (confirm('Вы уверены, что хотите удалить этого пассажира?')) {
+            fetch(`/api/passengers/${passengerId}`, {
+                method: 'DELETE'
+            }).then(response => {
+                if (response.ok) {
+                    location = '/admin/passengers';
+                } else {
+                    alert('Ошибка при удалении пассажира');
+                }
+            });
+        }
+    }
+</script>
+</html>
